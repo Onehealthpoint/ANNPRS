@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nepal Number Plate Recognition</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Nepal Number Plate Recognition System</h1>
+
+        <div class="tabs">
+            <div class="tab active" onclick="openTab('image-tab')">Image Recognition</div>
+            <div class="tab" onclick="openTab('video-tab')">Video Recognition</div>
+            <div class="tab" onclick="openTab('realtime-tab')">Real-time Recognition</div>
+        </div>
+
+        <div id="image-tab" class="tab-content active">
+            <h2>Upload Image</h2>
+            <form action="/upload_image" method="post" enctype="multipart/form-data">
+                <input type="file" name="file" accept="image/*" required>
+                <button type="submit">Process Image</button>
+            </form>
+            <p>Supported formats: JPG, PNG</p>
+        </div>
+
+        <div id="video-tab" class="tab-content">
+            <h2>Upload Video</h2>
+            <form action="/upload_video" method="post" enctype="multipart/form-data">
+                <input type="file" name="file" accept="video/*" required>
+                <button type="submit">Process Video</button>
+            </form>
+            <p>Supported formats: MP4</p>
+        </div>
+
+        <div id="realtime-tab" class="tab-content">
+            <h2>Real-time Recognition</h2>
+            <p>Click below to start real-time number plate recognition using your webcam</p>
+            <a href="/realtime" class="btn">Start Real-time Recognition</a>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

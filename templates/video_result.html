@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Recognition Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Video Recognition Results</h1>
+        <a href="/" class="back-btn">← Back to Home</a>
+
+        <div class="video-section">
+            <h2>Processed Video</h2>
+            <video controls>
+                <source src="{{ url_for('static', filename='uploads/' + processed_video) }}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+
+        {% if plates %}
+        <div class="plates-section">
+            <h2>Recognized Number Plates</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Plate Text</th>
+                        <th>Confidence</th>
+                        <th>Coordinates (x1,y1,x2,y2)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for plate in plates %}
+                    <tr>
+                        <td>{{ plate.text }}</td>
+                        <td>{{ "%.2f"|format(plate.confidence * 100) }}%</td>
+                        <td>{{ plate.coordinates }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="no-plates">
+            <p>No number plates were detected in this video.</p>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
