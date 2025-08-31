@@ -1,0 +1,11 @@
+__pycache__/
+.idea/
+.vscode/
+.venv
+venv/
+.venv/
+static/uploads/
+models/od/
+models/ocr/
+*.csv
+.env
