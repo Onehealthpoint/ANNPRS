@@ -13,8 +13,22 @@ class PlateInfo:
 
     def save_plate_info(self):
         import csv
-        with open('plate_db.csv', mode='a', newline='') as file:
+        import os
+
+        filename = 'plate_db.csv'
+        file_exists = os.path.isfile(filename)
+
+        with open(filename, mode='a', encoding='utf-8', newline='') as file:
             writer = csv.writer(file)
+
+            # Write header only if file is new
+            if not file_exists:
+                writer.writerow([
+                    'Plate BBox', 'Plate Confidence', 'Plate Color',
+                    'Text', 'Text Confidence', 'Language',
+                    'Source', 'Original Image Path', 'Result Image Path', 'Timestamp'
+                ])
+
             writer.writerow([
                 self.plate_bbox,
                 self.plate_conf,
@@ -27,8 +41,6 @@ class PlateInfo:
                 self.result_image_path,
                 self.timestamp
             ])
-
-
 def get_all_plate_info(source = None):
     import csv
     plate_info_list = []
@@ -55,4 +67,3 @@ def get_all_plate_info(source = None):
     except FileNotFoundError:
         print("Database file not found. Returning an empty list.")
     return plate_info_list
-

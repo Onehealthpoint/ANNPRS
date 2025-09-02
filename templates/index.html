@@ -1,46 +1,118 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nepal Number Plate Recognition</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nepali Number Plate Recognition</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="{{ url_for('static', filename='js/script.js') }}"></script>
 </head>
-<body>
-    <div class="container">
-        <h1>Nepal Number Plate Recognition System</h1>
-
-        <div class="tabs">
-            <div class="tab active" onclick="openTab('image-tab')">Image Recognition</div>
-            <div class="tab" onclick="openTab('video-tab')">Video Recognition</div>
-            <div class="tab" onclick="openTab('realtime-tab')">Real-time Recognition</div>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+  <!-- Header -->
+  <header class="bg-white shadow-sm border-b">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+            <span class="text-white text-xl">📷</span>
+          </div>
+          <div>
+            <h1 class="text-xl font-bold text-gray-900">Nepali Number Plate Recognition</h1>
+            <p class="text-sm text-gray-600">नेपाली नम्बर प्लेट पहिचान</p>
+          </div>
         </div>
-
-        <div id="image-tab" class="tab-content active">
-            <h2>Upload Image</h2>
-            <form action="/upload_image" method="post" enctype="multipart/form-data">
-                <input type="file" name="file" accept="image/*" required>
-                <button type="submit">Process Image</button>
-            </form>
-            <p>Supported formats: JPG, PNG</p>
+       <div onclick="toggleLanguage()" class="cursor-pointer bg-green-50 text-green-700 border border-green-200 rounded-full px-3 py-1 text-sm font-medium">
+         <span id="lang-flag">🇳🇵</span> <span id="lang-label">Nepal</span>
         </div>
+      </div>
+    </div>
+  </header>
 
-        <div id="video-tab" class="tab-content">
-            <h2>Upload Video</h2>
-            <form action="/upload_video" method="post" enctype="multipart/form-data">
-                <input type="file" name="file" accept="video/*" required>
-                <button type="submit">Process Video</button>
-            </form>
-            <p>Supported formats: MP4</p>
-        </div>
+  <!-- Hero Section -->
+  <section class="text-center py-12 px-4">
+    <h2 id="hero-title" class="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
+  नेपाली नम्बर प्लेट पहिचान प्रणाली
+    </h2>
+    <p class="text-xl text-gray-600 mb-2">Advanced AI-powered recognition system for Nepali vehicle number plates</p>
+    <p class="text-lg text-gray-500 max-w-3xl mx-auto">
+      Upload an image or video of a Nepali vehicle number plate and get instant recognition of both Nepali (देवनागरी) and English number plates with high accuracy.
+    </p>
+  </section>
 
-        <div id="realtime-tab" class="tab-content">
-            <h2>Real-time Recognition</h2>
-            <p>Click below to start real-time number plate recognition using your webcam</p>
-            <a href="/realtime" class="btn">Start Real-time Recognition</a>
-        </div>
+  <!-- Tabs Section -->
+  <main class="max-w-4xl mx-auto px-4 py-10">
+    <div class="mb-6 border-b border-gray-300">
+      <div class="flex space-x-4">
+        <button class="tab border-b-2 border-blue-600 text-blue-600 font-semibold px-4 py-2" onclick="openTab('image-tab', event)">Image Recognition</button>
+        <button class="tab text-gray-600 hover:text-blue-600 px-4 py-2" onclick="openTab('video-tab', event)">Video Recognition</button>
+        <button class="tab text-gray-600 hover:text-blue-600 px-4 py-2" onclick="openTab('realtime-tab', event)">Real-time Recognition</button>
+      </div>
     </div>
 
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <!-- Image Upload -->
+    <div id="image-tab" class="tab-content">
+      <div id="upload-card"></div>
+      <div id="results-card" class="mt-6"></div>
+    </div>
+
+    <!-- Video Upload -->
+    <div id="video-tab" class="tab-content hidden"></div>
+
+    <!-- Real-time Tab -->
+    <div id="realtime-tab" class="tab-content hidden">
+      <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 bg-white/40 text-center">
+        <div class="space-y-4">
+          <svg class="w-12 h-12 text-gray-400 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1" />
+            <path d="M12 12V4m0 0L8 8m4-4l4 4" />
+          </svg>
+          <h2 class="text-2xl font-bold text-gray-900">Real-time Recognition</h2>
+          <p class="text-gray-700">Use your webcam for live number plate detection</p>
+          <a href="/realtime" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 inline-block disabled:opacity-50">Start Real-time Recognition</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="mt-16 mb-12">
+      <h3 class="text-3xl font-bold text-center text-gray-900 mb-8">Why Choose Our Recognition System?</h3>
+      <div id="features-container" class="grid md:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+    </div>
+
+    <!-- How to Use -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+      <h4 class="text-center text-blue-900 text-xl font-bold mb-4">How to Use</h4>
+      <div class="grid md:grid-cols-3 gap-6 text-center">
+        <div>
+          <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 text-white font-bold">1</div>
+          <h5 class="font-semibold mb-2">Upload Image/Video</h5>
+          <p class="text-sm text-gray-600">Select an image or video file containing a Nepali number plate</p>
+        </div>
+        <div>
+          <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 text-white font-bold">2</div>
+          <h5 class="font-semibold mb-2">Click Detect</h5>
+          <p class="text-sm text-gray-600">Press the "Detect Number Plate" button to start processing</p>
+        </div>
+        <div>
+          <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 text-white font-bold">3</div>
+          <h5 class="font-semibold mb-2">View Results</h5>
+          <p class="text-sm text-gray-600">Get the recognized number plate in both Nepali and English</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-white py-8 mt-12">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <div class="flex items-center justify-center space-x-3 mb-4">
+        <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+          <span class="text-white text-lg">📷</span>
+        </div>
+        <span class="text-xl font-bold">Nepali Number Plate Recognition</span>
+      </div>
+      <p class="text-gray-400">Advanced AI technology for accurate Nepali vehicle number plate recognition</p>
+    </div>
+  </footer>
 </body>
 </html>

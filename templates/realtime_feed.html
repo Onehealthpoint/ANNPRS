@@ -5,19 +5,87 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Real-time Recognition</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        .content {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            max-width: 1000px;
+        }
+        .realtime-feed {
+            flex: 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .recognized-panel {
+            flex: 1;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 10px;
+            background: #f9f9f9;
+            overflow-y: auto;
+            max-height: 480px;
+        }
+        .recognized-panel h3 {
+            margin-top: 0;
+            text-align: center;
+        }
+        .plate-item {
+            background: #fff;
+            border-radius: 6px;
+            margin: 5px 0;
+            padding: 6px;
+            text-align: center;
+            font-weight: bold;
+            box-shadow: 0px 1px 3px rgba(0,0,0,0.1);
+        }
+        .controls {
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <h1>Real-time Number Plate Recognition</h1>
         <a href="/" class="back-btn">← Back to Home</a>
 
-        <div class="realtime-feed">
-            <img src="{{ url_for('realtime_feed') }}" alt="Live Feed">
+        <div class="content">
+            <!-- Live Feed -->
+            <div class="realtime-feed">
+                <img src="{{ url_for('realtime_feed') }}" alt="Live Feed" width="640" height="480">
+            </div>
+
+            <!-- Recognized Text Panel -->
+            <div class="recognized-panel" id="recognizedPanel">
+                <h3>Recognized Plates</h3>
+            </div>
         </div>
 
         <div class="controls">
             <button onclick="window.location.href='/'" class="btn">Stop Recognition</button>
         </div>
     </div>
+
+    <script>
+        // Listen to live recognition stream
+        const eventSource = new EventSource("/recognized_text_stream");
+        const panel = document.getElementById("recognizedPanel");
+
+        eventSource.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            const div = document.createElement("div");
+            div.className = "plate-item";
+            div.textContent = data.text;
+            panel.appendChild(div);
+            panel.scrollTop = panel.scrollHeight; // Scroll to latest
+        };
+    </script>
 </body>
 </html>

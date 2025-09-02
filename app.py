@@ -13,7 +13,7 @@ from helper import calculate_box_iou
 from flask import Flask, request, jsonify, Response, render_template, redirect, url_for
 
 app = Flask(__name__)
-
+recognized_texts = []
 # app.config['DEBUG_PREPROCESSING'] = True
 
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
@@ -204,8 +204,11 @@ def process_image(image):
                     try:
                         eng_texts = reader.readtext(
                             img,
-                            decoder='beamsearch',
-                            beamWidth=10,
+                            decoder='greedy',
+                            beamWidth=5,
+                            link_threshold=0.4,
+                            add_margin=0.1,
+                            low_text=0.4,
                             allowlist='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ',
                             paragraph=False
                         )
@@ -221,8 +224,11 @@ def process_image(image):
                                     })
                         nep_texts = nep_reader.readtext(
                             img,
-                            decoder='beamsearch',
-                            beamWidth=10,
+                            decoder='greedy',
+                            beamWidth=5,
+                            link_threshold=0.4,
+                            add_margin=0.1,
+                            low_text=0.4,
                             paragraph=False
                         )
                         for result_item in nep_texts:
@@ -325,6 +331,8 @@ def process_video_frame(frame, frame_count):
                     else:
                         text_counts[text] = 1
                 most_common_text = max(text_counts.items(), key=lambda x: x[1])[0]
+                if most_common_text and most_common_text not in recognized_texts:
+                    recognized_texts.append(most_common_text)
                 cv2.rectangle(processed_frame, (x1, y1), (x2, y2), (57, 255, 20), 2)
                 cv2.putText(
                     processed_frame,
@@ -426,24 +434,53 @@ def realtime():
 def realtime_feed():
     return Response(generate_frames(),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
+@app.route('/recognized_text_stream')
+def recognized_text_stream():
+    from flask import stream_with_context
+    import json, time
+
+    @stream_with_context
+    def event_stream():
+        last_sent = 0
+        while True:
+            if len(recognized_texts) > last_sent:
+                new_text = recognized_texts[last_sent]
+                yield f"data: {json.dumps({'text': new_text})}\n\n"
+                last_sent += 1
+            time.sleep(0.2)  # small delay to avoid CPU spikes
+
+    return Response(event_stream(), mimetype='text/event-stream')
 
 def generate_frames():
-    cap = cv2.VideoCapture(0)
+    global video_capture, tracked_plates
+    video_capture = cv2.VideoCapture(0)
     frame_count = 0
-    global next_plate_id, tracked_plates
-    next_plate_id = 0
-    tracked_plates = {}
-    while True:
-        success, frame = cap.read()
-        if not success:
+
+    if not video_capture.isOpened():
+        print("❌ Error: Could not open webcam.")
+        return
+
+    while video_capture.isOpened():
+        ret, frame = video_capture.read()
+        if not ret:
             break
-        processed_frame = process_video_frame(frame, frame_count)
+
         frame_count += 1
+
+        # ✅ Process only every 3rd frame for performance
+        if frame_count % 3 == 0:
+            processed_frame = process_video_frame(frame, frame_count)
+        else:
+            processed_frame = frame  # Show unprocessed frame
+
         ret, buffer = cv2.imencode('.jpg', processed_frame)
-        frame = buffer.tobytes()
+        frame_bytes = buffer.tobytes()
+
         yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-    cap.release()
+               b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+
+    video_capture.release()
+    print("✅ Webcam released successfully.")
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

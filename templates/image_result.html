@@ -31,7 +31,7 @@
                     <tr>
                         <th>Plate Text</th>
                         <th>Confidence</th>
-                        <th>Coordinates (x1,y1,x2,y2)</th>
+                       <!-- <th>Coordinates (x1,y1,x2,y2)</th> -->
                     </tr>
                 </thead>
                 <tbody>
@@ -39,7 +39,7 @@
                     <tr>
                         <td>{{ plate.text }}</td>
                         <td>{{ "%.2f"|format(plate.confidence * 100) }}%</td>
-                        <td>{{ plate.coordinates }}</td>
+                       <!-- <td>{{ plate.coordinates }}</td> -->
                     </tr>
                     {% endfor %}
                 </tbody>
